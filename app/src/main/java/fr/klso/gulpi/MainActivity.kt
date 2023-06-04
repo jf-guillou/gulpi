@@ -1,8 +1,6 @@
 package fr.klso.gulpi
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,9 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -54,17 +49,13 @@ import fr.klso.gulpi.screens.SettingsScreen
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
 
-val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { App(this) }
+        setContent { App() }
         val requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-//                this.datastore.edit { settings ->
-//                    settings[booleanPreferencesKey("camera")] = isGranted
-//                }
+
             }
         requestPermissionLauncher.launch(Manifest.permission.CAMERA)
     }
@@ -73,7 +64,7 @@ class MainActivity : ComponentActivity() {
 @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(ctx: Activity) {
+fun App() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
