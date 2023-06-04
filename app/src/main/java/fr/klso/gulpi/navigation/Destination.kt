@@ -6,7 +6,10 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 interface Destination {
     val route: String
@@ -20,10 +23,21 @@ object Home : Destination {
     override val name = "Home"
 }
 
-object Search : Destination {
-    override val route = "search"
+object SearchForm : Destination {
+    override val route = "searchform"
     override val icon = Icons.Default.Search
     override val name = "Search"
+}
+
+object SearchResults : Destination {
+    override val route = "searchresults"
+    const val criteria = "criteria"
+    val routeArgs = "${route}/{${criteria}}"
+    val arguments = listOf(
+        navArgument(criteria) { type = NavType.StringType }
+    )
+    override val icon = Icons.Default.Warning
+    override val name = "Search results"
 }
 
 object Scan : Destination {

@@ -20,15 +20,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavController
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import fr.klso.gulpi.navigation.SearchResults
 
 @Composable
 @androidx.camera.core.ExperimentalGetImage
-fun ScanScreen() {
+fun ScanScreen(navController: NavController) {
     val context = LocalContext.current
     if (!canUseCamera(context)) {
         println("cannot use camera")
@@ -59,8 +61,14 @@ fun ScanScreen() {
             barcodeScanner,
         ) { barcodes: List<Barcode> ->
             if (barcodes.isNotEmpty()) {
-                for (b in barcodes) {
-                    println(b)
+                for (barcode in barcodes) {
+                    val barcodeStr = barcode.rawValue
+                    if (isBarcodeValid(barcodeStr)) {
+                        println(barcodeStr)
+                        navController.navigate("${SearchResults.route}/$barcodeStr") {
+                            launchSingleTop = true
+                        }
+                    }
                 }
             }
         }
@@ -71,6 +79,10 @@ fun ScanScreen() {
     Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
     }
+}
+
+private fun isBarcodeValid(barcode: String?): Boolean {
+    return barcode != null && barcode.length in 4..23
 }
 
 private fun canUseCamera(ctx: Context): Boolean {

@@ -30,10 +30,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -42,15 +39,17 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import fr.klso.gulpi.navigation.Destination
 import fr.klso.gulpi.navigation.Home
 import fr.klso.gulpi.navigation.Scan
-import fr.klso.gulpi.navigation.Search
+import fr.klso.gulpi.navigation.SearchForm
+import fr.klso.gulpi.navigation.SearchResults
 import fr.klso.gulpi.navigation.Settings
 import fr.klso.gulpi.screens.HomeScreen
 import fr.klso.gulpi.screens.ScanScreen
-import fr.klso.gulpi.screens.SearchScreen
+import fr.klso.gulpi.screens.SearchFormScreen
+import fr.klso.gulpi.screens.SearchResultsScreen
 import fr.klso.gulpi.screens.SettingsScreen
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
@@ -71,10 +70,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(ctx: Activity) {
-    var currentScreen: Destination by remember { mutableStateOf(Home) }
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -83,7 +82,12 @@ fun App(ctx: Activity) {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                val destinations = listOf(Home, Search, Scan, Settings)
+                val destinations = listOf(Home, SearchForm, Scan, Settings)
+                val currentBackStack by navController.currentBackStackEntryAsState()
+                val currentDestination = currentBackStack?.destination
+                val currentScreen =
+                    destinations.find { it.route == currentDestination?.route } ?: Home
+
                 ModalDrawerSheet() {
                     Text("Gulpi", modifier = Modifier.padding(16.dp))
                     Divider()
@@ -98,8 +102,9 @@ fun App(ctx: Activity) {
                                     scope.launch {
                                         drawerState.close()
                                     }
-                                    navController.navigate(item.route)
-                                    currentScreen = item
+                                    navController.navigate(item.route) {
+                                        launchSingleTop = true
+                                    }
                                 },
                             colors = if (selected) CardDefaults.cardColors() else CardDefaults.elevatedCardColors(),
                             shape = RoundedCornerShape(6.dp)
@@ -149,13 +154,21 @@ fun App(ctx: Activity) {
                     modifier = Modifier.padding(padding)
                 ) {
                     composable(route = Home.route) {
-                        HomeScreen()
+                        HomeScreen(navController)
                     }
-                    composable(route = Search.route) {
-                        SearchScreen()
+                    composable(route = SearchForm.route) {
+                        SearchFormScreen(navController)
+                    }
+                    composable(
+                        route = SearchResults.routeArgs, arguments = SearchResults.arguments
+                    ) { navBackStackEntry ->
+                        val criteria =
+                            navBackStackEntry.arguments?.getString(SearchResults.criteria)
+
+                        SearchResultsScreen(navController, criteria)
                     }
                     composable(route = Scan.route) {
-                        ScanScreen()
+                        ScanScreen(navController)
                     }
                     composable(route = Settings.route) {
                         SettingsScreen()

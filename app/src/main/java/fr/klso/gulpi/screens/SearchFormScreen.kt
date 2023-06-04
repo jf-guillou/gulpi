@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun SearchResultsScreen(navController: NavController, criteria: String?) {
-    Text(text = "SearchScreen")
-    Text(criteria ?: "")
+fun SearchFormScreen(navController: NavController) {
+    Text(text = "SearchFormScreen")
 }
