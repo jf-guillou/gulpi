@@ -53,6 +53,8 @@ import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
 
+const val APP_NAME = "Gulpi"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,18 +89,18 @@ fun App() {
         }
     }
 
+    val destinations = listOf(Home, SearchForm, Scan, Settings)
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination
+    val currentScreen =
+        destinations.find { it.route == currentDestination?.route } ?: Home
+
     GulpiTheme {
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
-                val destinations = listOf(Home, SearchForm, Scan, Settings)
-                val currentBackStack by navController.currentBackStackEntryAsState()
-                val currentDestination = currentBackStack?.destination
-                val currentScreen =
-                    destinations.find { it.route == currentDestination?.route } ?: Home
-
                 ModalDrawerSheet() {
-                    Text("Gulpi", modifier = Modifier.padding(16.dp))
+                    Text(APP_NAME, modifier = Modifier.padding(16.dp))
                     Divider()
                     destinations.forEach { item ->
                         val selected = item.route == currentScreen.route
@@ -143,7 +145,7 @@ fun App() {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("AppBaer") },
+                        title = { Text(if (currentScreen == Home) APP_NAME else currentScreen.name) },
                         navigationIcon = {
                             IconButton(onClick = {
                                 scope.launch {
