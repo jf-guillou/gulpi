@@ -2,29 +2,65 @@ package fr.klso.gulpi.services
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import fr.klso.gulpi.models.ApiSession
+import fr.klso.gulpi.models.Item
+import fr.klso.gulpi.models.ItemType
+import fr.klso.gulpi.utilities.ApiAuthFailedException
+import fr.klso.gulpi.utilities.ApiMissingAppTokenException
+import fr.klso.gulpi.utilities.ApiNotInitializedException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-class Glpi {
-    private val api: GlpiApi by lazy {
-        createGlpiApi()
+class Glpi() {
+    private var api: GlpiApi? = null
+    var appToken: String? = null
+    var sessionToken: String? = null
+    val usable: Boolean
+        get() = api != null
+
+    fun init(url: String) {
+        api = createApi(url)
     }
 
-    suspend fun initSession(): ApiSession {
-        return api.initSession(
-            "",
-            ""
+    suspend fun initSession(userToken: String): ApiSession {
+        if (api == null) {
+            throw ApiNotInitializedException()
+        }
+        if (appToken == null) {
+            throw ApiMissingAppTokenException()
+        }
+
+        return api!!.initSession(
+            "$appToken",
+            "user_token $userToken"
+        )
+    }
+
+    suspend fun getItem(type: ItemType = ItemType.COMPUTER, itemId: String): Item {
+        if (api == null) {
+            throw ApiNotInitializedException()
+        }
+        if (appToken == null) {
+            throw ApiMissingAppTokenException()
+        }
+        if (sessionToken == null) {
+            throw ApiAuthFailedException()
+        }
+
+        return api!!.getItem(
+            "$appToken",
+            "$sessionToken",
+            type.str,
+            itemId
         )
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    private fun createGlpiApi(): GlpiApi {
-
+    private fun createApi(url: String): GlpiApi {
         val contentType = "application/json".toMediaType()
         val retrofit = Retrofit.Builder()
-            .baseUrl("")
+            .baseUrl(url)
             .addConverterFactory(Json.asConverterFactory(contentType))
             .build()
 

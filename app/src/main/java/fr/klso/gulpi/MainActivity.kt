@@ -27,15 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import fr.klso.gulpi.data.AuthStore
 import fr.klso.gulpi.navigation.Home
 import fr.klso.gulpi.navigation.Scan
 import fr.klso.gulpi.navigation.SearchForm
@@ -46,6 +49,7 @@ import fr.klso.gulpi.screens.ScanScreen
 import fr.klso.gulpi.screens.SearchFormScreen
 import fr.klso.gulpi.screens.SearchResultsScreen
 import fr.klso.gulpi.screens.SettingsScreen
+import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
 
@@ -68,6 +72,20 @@ fun App() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val store = AuthStore(LocalContext.current)
+    val url = store.getUrl.collectAsState("").value
+    if (url.isNotEmpty()) {
+        Glpi().init(url)
+    }
+    Glpi().appToken = store.getAppToken.collectAsState(null).value
+    Glpi().sessionToken = store.getSessionToken.collectAsState(null).value
+    if (Glpi().sessionToken == null) {
+        val userToken = store.getUserToken.collectAsState("").value
+        if (userToken.isNotEmpty()) {
+//            Glpi().initSession(userToken)
+        }
+    }
 
     GulpiTheme {
         ModalNavigationDrawer(
