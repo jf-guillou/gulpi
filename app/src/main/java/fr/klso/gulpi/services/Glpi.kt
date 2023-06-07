@@ -12,10 +12,10 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-class Glpi() {
+object Glpi {
     private var api: GlpiApi? = null
-    var appToken: String? = null
-    var sessionToken: String? = null
+    var appToken: String = ""
+    var sessionToken: String = ""
     val usable: Boolean
         get() = api != null
 
@@ -27,12 +27,12 @@ class Glpi() {
         if (api == null) {
             throw ApiNotInitializedException()
         }
-        if (appToken == null) {
+        if (appToken.isEmpty()) {
             throw ApiMissingAppTokenException()
         }
 
         return api!!.initSession(
-            "$appToken",
+            appToken,
             "user_token $userToken"
         )
     }
@@ -41,16 +41,16 @@ class Glpi() {
         if (api == null) {
             throw ApiNotInitializedException()
         }
-        if (appToken == null) {
+        if (appToken.isEmpty()) {
             throw ApiMissingAppTokenException()
         }
-        if (sessionToken == null) {
+        if (sessionToken.isEmpty()) {
             throw ApiAuthFailedException()
         }
 
         return api!!.getItem(
-            "$appToken",
-            "$sessionToken",
+            appToken,
+            sessionToken,
             type.str,
             itemId
         )

@@ -3,6 +3,7 @@ package fr.klso.gulpi
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,6 +57,8 @@ import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
 
+private const val TAG = "MainActivity"
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,14 +83,29 @@ fun App() {
     val url = store.getUrl.collectAsState("").value
     val uri = Uri.parse(url)
     if (url.isNotEmpty() && uri != null && uri.scheme?.startsWith("http") == true) {
-        Glpi().init(url)
+        Log.d(TAG, "Init GlpiApi : $url")
+        Glpi.init(url)
     }
-    Glpi().appToken = store.getAppToken.collectAsState(null).value
-    Glpi().sessionToken = store.getSessionToken.collectAsState(null).value
-    if (Glpi().sessionToken == null) {
+
+    val appToken = store.getAppToken.collectAsState("").value
+    Log.d(TAG, "App token : $appToken")
+    Glpi.appToken = appToken
+
+    val sessionToken = store.getSessionToken.collectAsState("").value
+    Log.d(TAG, "Session token : $sessionToken")
+    Glpi.sessionToken = sessionToken
+    
+    if (Glpi.sessionToken.isEmpty() && Glpi.appToken.isNotEmpty()) {
+        Log.d(TAG, "Missing session token")
         val userToken = store.getUserToken.collectAsState("").value
+        Log.d(TAG, "User token : $userToken")
         if (userToken.isNotEmpty()) {
-//            Glpi().initSession(userToken)
+            LaunchedEffect(Unit) {
+                val token = Glpi.initSession(userToken).sessionToken
+                store.saveSessionToken(token)
+                Glpi.sessionToken = token
+                Log.d(TAG, token)
+            }
         }
     }
 
