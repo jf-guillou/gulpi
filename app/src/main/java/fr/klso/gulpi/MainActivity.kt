@@ -1,6 +1,7 @@
 package fr.klso.gulpi
 
 import android.Manifest
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,8 +54,6 @@ import fr.klso.gulpi.screens.SettingsScreen
 import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
-
-const val APP_NAME = "Gulpi"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +77,8 @@ fun App() {
 
     val store = AuthStore(LocalContext.current)
     val url = store.getUrl.collectAsState("").value
-    if (url.isNotEmpty()) {
+    val uri = Uri.parse(url)
+    if (url.isNotEmpty() && uri != null && uri.scheme?.startsWith("http") == true) {
         Glpi().init(url)
     }
     Glpi().appToken = store.getAppToken.collectAsState(null).value
@@ -100,7 +101,7 @@ fun App() {
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet() {
-                    Text(APP_NAME, modifier = Modifier.padding(16.dp))
+                    Text(stringResource(R.string.app_name), modifier = Modifier.padding(16.dp))
                     Divider()
                     destinations.forEach { item ->
                         val selected = item.route == currentScreen.route
@@ -145,7 +146,7 @@ fun App() {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(if (currentScreen == Home) APP_NAME else currentScreen.name) },
+                        title = { Text(if (currentScreen == Home) stringResource(R.string.app_name) else currentScreen.name) },
                         navigationIcon = {
                             IconButton(onClick = {
                                 scope.launch {
