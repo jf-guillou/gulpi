@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -94,7 +95,7 @@ fun App() {
     val sessionToken = store.getSessionToken.collectAsState("").value
     Log.d(TAG, "Session token : $sessionToken")
     Glpi.sessionToken = sessionToken
-    
+
     if (Glpi.sessionToken.isEmpty() && Glpi.appToken.isNotEmpty()) {
         Log.d(TAG, "Missing session token")
         val userToken = store.getUserToken.collectAsState("").value
@@ -167,12 +168,21 @@ fun App() {
                     TopAppBar(
                         title = { Text(if (currentScreen == Home) stringResource(R.string.app_name) else currentScreen.name) },
                         navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.open()
+                            if (navController.previousBackStackEntry == null) {
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        drawerState.open()
+                                    }
+                                }) {
+                                    Icon(Icons.Filled.Menu, contentDescription = null)
                                 }
-                            }) {
-                                Icon(Icons.Filled.Menu, contentDescription = null)
+                            } else {
+                                IconButton(onClick = {
+                                    navController.popBackStack()
+                                }) {
+                                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                                }
+
                             }
                         },
                         actions = {}
