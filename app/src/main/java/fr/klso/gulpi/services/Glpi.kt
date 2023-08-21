@@ -10,7 +10,6 @@ import fr.klso.gulpi.utilities.exceptions.ApiAuthFailedException
 import fr.klso.gulpi.utilities.exceptions.ApiMissingAppTokenException
 import fr.klso.gulpi.utilities.exceptions.ApiNotInitializedException
 import fr.klso.gulpi.utilities.toQueryMap
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -19,7 +18,6 @@ import retrofit2.HttpException
 import retrofit2.Retrofit
 
 
-@Suppress("UNCHECKED_CAST")
 object Glpi {
     private var api: GlpiApi? = null
     var appToken: String = ""
@@ -98,7 +96,6 @@ object Glpi {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     private fun createApi(url: String): GlpiApi {
         val logging = HttpLoggingInterceptor()
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);

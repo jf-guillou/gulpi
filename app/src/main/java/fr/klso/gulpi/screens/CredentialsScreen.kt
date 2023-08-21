@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import fr.klso.gulpi.R
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun CredentialsScreen() {
