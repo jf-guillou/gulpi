@@ -1,7 +1,6 @@
 package fr.klso.gulpi
 
 import android.Manifest
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -44,7 +43,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import fr.klso.gulpi.data.AuthStore
+import fr.klso.gulpi.navigation.Credentials
 import fr.klso.gulpi.navigation.Home
+import fr.klso.gulpi.navigation.Onboarding
 import fr.klso.gulpi.navigation.Scan
 import fr.klso.gulpi.navigation.SearchForm
 import fr.klso.gulpi.navigation.SearchResults
@@ -54,6 +55,8 @@ import fr.klso.gulpi.screens.ScanScreen
 import fr.klso.gulpi.screens.SearchFormScreen
 import fr.klso.gulpi.screens.SearchResultsScreen
 import fr.klso.gulpi.screens.SettingsScreen
+import fr.klso.gulpi.screens.disconnected.CredentialsScreen
+import fr.klso.gulpi.screens.disconnected.OnboardingScreen
 import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
@@ -76,39 +79,52 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App() {
+    val store = AuthStore(LocalContext.current)
+    val url = store.getUrl.collectAsState("").value
+    val userToken = store.getUserToken.collectAsState("").value
+    val appToken = store.getAppToken.collectAsState("").value
+    val sessionToken = store.getSessionToken.collectAsState("").value
+    // Hideous way to wait for datastore readiness
+    if (!store.ready.collectAsState(initial = false).value) {
+        LaunchedEffect(Unit) {
+            store.setReady()
+        }
+        return
+    }
+
+    Log.d(TAG, "Init GlpiApi : $url")
+    if (url.isEmpty()) {
+        OnboardingScreen()
+        return
+    }
+    Glpi.init(url)
+
+    Log.d(TAG, "User token : $userToken")
+    Log.d(TAG, "App token : $appToken")
+    Log.d(TAG, "Session token : $sessionToken")
+
+    if (userToken.isEmpty() || appToken.isEmpty()) {
+        CredentialsScreen()
+        return
+    }
+
+    if (sessionToken.isEmpty()) {
+        Log.d(TAG, "Missing session token")
+        LaunchedEffect(Unit) {
+            Log.d(TAG, "initSession")
+            val token = Glpi.initSession(userToken).sessionToken
+            store.saveSessionToken(token)
+            Glpi.sessionToken = token
+            Log.d(TAG, token)
+        }
+    }
+
+    Glpi.appToken = appToken
+    Glpi.sessionToken = sessionToken
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    val store = AuthStore(LocalContext.current)
-    val url = store.getUrl.collectAsState("").value
-    val uri = Uri.parse(url)
-    if (url.isNotEmpty() && uri != null && uri.scheme?.startsWith("http") == true) {
-        Log.d(TAG, "Init GlpiApi : $url")
-        Glpi.init(url)
-    }
-
-    val appToken = store.getAppToken.collectAsState("").value
-    Log.d(TAG, "App token : $appToken")
-    Glpi.appToken = appToken
-
-    val sessionToken = store.getSessionToken.collectAsState("").value
-    Log.d(TAG, "Session token : $sessionToken")
-    Glpi.sessionToken = sessionToken
-
-    if (Glpi.sessionToken.isEmpty() && Glpi.appToken.isNotEmpty()) {
-        Log.d(TAG, "Missing session token")
-        val userToken = store.getUserToken.collectAsState("").value
-        Log.d(TAG, "User token : $userToken")
-        if (userToken.isNotEmpty()) {
-            LaunchedEffect(Unit) {
-                val token = Glpi.initSession(userToken).sessionToken
-                store.saveSessionToken(token)
-                Glpi.sessionToken = token
-                Log.d(TAG, token)
-            }
-        }
-    }
 
     val destinations = listOf(Home, SearchForm, Scan, Settings)
     val currentBackStack by navController.currentBackStackEntryAsState()
@@ -119,6 +135,7 @@ fun App() {
     GulpiTheme {
         ModalNavigationDrawer(
             drawerState = drawerState,
+            gesturesEnabled = Glpi.usable,
             drawerContent = {
                 ModalDrawerSheet() {
                     Text(stringResource(R.string.app_name), modifier = Modifier.padding(16.dp))
@@ -166,7 +183,13 @@ fun App() {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(if (currentScreen == Home) stringResource(R.string.app_name) else currentScreen.name) },
+                        title = {
+                            if (currentScreen == Home) {
+                                Text(stringResource(R.string.app_name))
+                            } else {
+                                Text(currentScreen.name)
+                            }
+                        },
                         navigationIcon = {
                             if (navController.previousBackStackEntry == null) {
                                 IconButton(onClick = {
@@ -182,7 +205,6 @@ fun App() {
                                 }) {
                                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                                 }
-
                             }
                         },
                         actions = {}
@@ -211,8 +233,15 @@ fun App() {
                     composable(route = Scan.route) {
                         ScanScreen(navController)
                     }
+
                     composable(route = Settings.route) {
                         SettingsScreen()
+                    }
+                    composable(route = Credentials.route) {
+                        CredentialsScreen()
+                    }
+                    composable(route = Onboarding.route) {
+                        OnboardingScreen()
                     }
                 }
             }

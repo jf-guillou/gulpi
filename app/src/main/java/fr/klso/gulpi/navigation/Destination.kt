@@ -2,11 +2,10 @@ package fr.klso.gulpi.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -36,14 +35,20 @@ object SearchResults : Destination {
     val arguments = listOf(
         navArgument(criteria) { type = NavType.StringType }
     )
-    override val icon = Icons.Default.Warning
+    override val icon = Icons.Default.Close
     override val name = "Search results"
 }
 
 object Scan : Destination {
     override val route = "scan"
-    override val icon = Icons.Default.Create
+    override val icon = Icons.Default.Build
     override val name = "Scan"
+}
+
+object Inventory : Destination {
+    override val route = "inventory"
+    override val icon = Icons.Default.Close
+    override val name = "Inventory"
 }
 
 object Settings : Destination {
@@ -52,8 +57,14 @@ object Settings : Destination {
     override val name = "Settings"
 }
 
-object Inventory : Destination {
-    override val route = "inventory"
-    override val icon = Icons.Default.Build
-    override val name = "Inventory"
+object Credentials : Destination {
+    override val route = "credentials"
+    override val icon = Icons.Default.Close
+    override val name = "Credentials"
+}
+
+object Onboarding : Destination {
+    override val route = "onboarding"
+    override val icon = Icons.Default.Close
+    override val name = "Onboarding"
 }

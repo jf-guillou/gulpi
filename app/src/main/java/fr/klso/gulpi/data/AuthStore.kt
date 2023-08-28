@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 class AuthStore(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("auth")
+        private val READY_KEY = stringPreferencesKey("ready")
         private val URL_KEY = stringPreferencesKey("url")
         private val APP_TOKEN_KEY = stringPreferencesKey("app_token")
         private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
@@ -29,6 +30,9 @@ class AuthStore(private val context: Context) {
     }
     val getSessionToken: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[SESSION_TOKEN_KEY] ?: ""
+    }
+    val ready: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[READY_KEY] != null
     }
 
     suspend fun saveUrl(url: String) {
@@ -52,6 +56,12 @@ class AuthStore(private val context: Context) {
     suspend fun saveSessionToken(token: String) {
         context.dataStore.edit { preferences ->
             preferences[SESSION_TOKEN_KEY] = token
+        }
+    }
+
+    suspend fun setReady() {
+        context.dataStore.edit { preferences ->
+            preferences[READY_KEY] = ""
         }
     }
 }

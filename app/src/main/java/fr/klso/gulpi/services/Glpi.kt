@@ -22,8 +22,10 @@ object Glpi {
     private var api: GlpiApi? = null
     var appToken: String = ""
     var sessionToken: String = ""
-    val usable: Boolean
+    val hasApi: Boolean
         get() = api != null
+    val usable: Boolean
+        get() = hasApi && appToken.isNotEmpty() && sessionToken.isNotEmpty()
 
     fun init(url: String) {
         api = createApi(url)
