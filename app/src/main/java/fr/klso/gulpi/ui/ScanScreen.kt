@@ -1,4 +1,4 @@
-package fr.klso.gulpi.screens
+package fr.klso.gulpi.ui
 
 import android.Manifest
 import android.content.Context

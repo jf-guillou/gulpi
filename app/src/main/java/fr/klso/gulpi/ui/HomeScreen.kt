@@ -1,4 +1,4 @@
-package fr.klso.gulpi.screens
+package fr.klso.gulpi.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

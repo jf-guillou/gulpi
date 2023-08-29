@@ -43,6 +43,27 @@ object Glpi {
         }
     }
 
+    suspend fun checkEndpoint(): Boolean {
+        if (api == null) {
+            throw ApiNotInitializedException()
+        }
+
+        try {
+            api!!.initSession("", "")
+        } catch (e: HttpException) {
+            if (e.code() == 400) {
+                val body = e.response()?.errorBody()
+                if (body != null && body.string().contains(ApiMissingAppTokenException.apiMsg)) {
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            return false
+        }
+
+        return false
+    }
+
     suspend fun initSession(userToken: String): ApiSession {
         if (api == null) {
             throw ApiNotInitializedException()

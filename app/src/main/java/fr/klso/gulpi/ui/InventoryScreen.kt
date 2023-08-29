@@ -1,4 +1,4 @@
-package fr.klso.gulpi.screens
+package fr.klso.gulpi.ui
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
