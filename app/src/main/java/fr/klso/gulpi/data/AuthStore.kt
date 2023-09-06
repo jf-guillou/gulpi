@@ -1,15 +1,20 @@
 package fr.klso.gulpi.data
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class AuthStore(private val context: Context) {
+private const val TAG = "AuthStore"
+
+class AuthStore @Inject constructor(@ApplicationContext private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("auth")
         private val READY_KEY = stringPreferencesKey("ready")
@@ -36,6 +41,7 @@ class AuthStore(private val context: Context) {
     }
 
     suspend fun saveUrl(url: String) {
+        Log.d(TAG, "saveUrl : $url")
         context.dataStore.edit { preferences ->
             preferences[URL_KEY] = url
         }

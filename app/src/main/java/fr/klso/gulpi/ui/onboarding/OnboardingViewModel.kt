@@ -7,16 +7,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.klso.gulpi.data.AuthStore
 import fr.klso.gulpi.services.Glpi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val TAG = "OnboardingViewModel"
 
-class OnboardingViewModel() : ViewModel() {
+@HiltViewModel
+class OnboardingViewModel @Inject constructor(
+    private val store: AuthStore,
+) : ViewModel() {
     private val _state = MutableStateFlow(OnboardingUiState())
     val state: StateFlow<OnboardingUiState> = _state.asStateFlow()
 
@@ -47,7 +53,7 @@ class OnboardingViewModel() : ViewModel() {
                 val isReachable = Glpi.checkEndpoint()
                 _state.update { s -> s.copy(isEndpointInvalid = !isReachable, isLoading = false) }
                 if (isReachable) {
-                    // TODO: store URL in DataStore
+                    store.saveUrl(url)
                 }
             }
         }
