@@ -47,15 +47,10 @@ class AuthStore @Inject constructor(@ApplicationContext private val context: Con
         }
     }
 
-    suspend fun saveAppToken(token: String) {
+    suspend fun saveAppAndUserToken(appToken: String, userToken: String) {
         context.dataStore.edit { preferences ->
-            preferences[APP_TOKEN_KEY] = token
-        }
-    }
-
-    suspend fun saveUserToken(token: String) {
-        context.dataStore.edit { preferences ->
-            preferences[USER_TOKEN_KEY] = token
+            preferences[APP_TOKEN_KEY] = appToken
+            preferences[USER_TOKEN_KEY] = userToken
         }
     }
 

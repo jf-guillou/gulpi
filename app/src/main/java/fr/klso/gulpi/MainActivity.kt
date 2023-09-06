@@ -52,12 +52,12 @@ import fr.klso.gulpi.navigation.SearchForm
 import fr.klso.gulpi.navigation.SearchResults
 import fr.klso.gulpi.navigation.Settings
 import fr.klso.gulpi.services.Glpi
-import fr.klso.gulpi.ui.CredentialsScreen
 import fr.klso.gulpi.ui.HomeScreen
 import fr.klso.gulpi.ui.ScanScreen
 import fr.klso.gulpi.ui.SearchFormScreen
 import fr.klso.gulpi.ui.SearchResultsScreen
 import fr.klso.gulpi.ui.SettingsScreen
+import fr.klso.gulpi.ui.credentials.CredentialsScreen
 import fr.klso.gulpi.ui.onboarding.OnboardingScreen
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch

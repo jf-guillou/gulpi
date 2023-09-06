@@ -9,6 +9,7 @@ import fr.klso.gulpi.models.search.SearchCriteria
 import fr.klso.gulpi.utilities.exceptions.ApiAuthFailedException
 import fr.klso.gulpi.utilities.exceptions.ApiMissingAppTokenException
 import fr.klso.gulpi.utilities.exceptions.ApiNotInitializedException
+import fr.klso.gulpi.utilities.exceptions.ApiUnexpectedResponseException
 import fr.klso.gulpi.utilities.toQueryMap
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,6 +18,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.HttpException
 import retrofit2.Retrofit
 
+private const val TAG = "API"
 
 object Glpi {
     private var api: GlpiApi? = null
@@ -72,10 +74,21 @@ object Glpi {
             throw ApiMissingAppTokenException()
         }
 
-        return api!!.initSession(
-            appToken,
-            "user_token $userToken"
-        )
+        try {
+            return api!!.initSession(
+                appToken,
+                "user_token $userToken"
+            )
+        } catch (e: HttpException) {
+            if (e.code() == 400) {
+                val body = e.response()?.errorBody()
+                if (body != null) {
+                    throw ApiAuthFailedException()
+                }
+            }
+        }
+
+        throw ApiUnexpectedResponseException()
     }
 
     suspend fun getComputer(id: String): Computer? {
