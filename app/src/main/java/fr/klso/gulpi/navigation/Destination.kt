@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
@@ -22,21 +21,15 @@ object Home : Destination {
     override val name = "Home"
 }
 
-object SearchForm : Destination {
-    override val route = "searchform"
-    override val icon = Icons.Default.Search
-    override val name = "Search"
-}
-
-object SearchResults : Destination {
-    override val route = "searchresults"
+object Search : Destination {
+    override val route = "search"
     const val criteria = "criteria"
     val routeArgs = "${route}/{${criteria}}"
     val arguments = listOf(
         navArgument(criteria) { type = NavType.StringType }
     )
     override val icon = Icons.Default.Close
-    override val name = "Search results"
+    override val name = "Search"
 }
 
 object Scan : Destination {

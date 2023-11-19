@@ -48,17 +48,15 @@ import fr.klso.gulpi.navigation.Credentials
 import fr.klso.gulpi.navigation.Home
 import fr.klso.gulpi.navigation.Onboarding
 import fr.klso.gulpi.navigation.Scan
-import fr.klso.gulpi.navigation.SearchForm
-import fr.klso.gulpi.navigation.SearchResults
+import fr.klso.gulpi.navigation.Search
 import fr.klso.gulpi.navigation.Settings
 import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.HomeScreen
 import fr.klso.gulpi.ui.ScanScreen
-import fr.klso.gulpi.ui.SearchFormScreen
-import fr.klso.gulpi.ui.SearchResultsScreen
 import fr.klso.gulpi.ui.SettingsScreen
 import fr.klso.gulpi.ui.credentials.CredentialsScreen
 import fr.klso.gulpi.ui.onboarding.OnboardingScreen
+import fr.klso.gulpi.ui.search.SearchScreen
 import fr.klso.gulpi.ui.theme.GulpiTheme
 import kotlinx.coroutines.launch
 
@@ -128,7 +126,7 @@ fun App() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val destinations = listOf(Home, SearchForm, Scan, Settings)
+    val destinations = listOf(Home, Scan, Search, Settings)
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
     val currentScreen =
@@ -221,16 +219,13 @@ fun App() {
                     composable(route = Home.route) {
                         HomeScreen(navController)
                     }
-                    composable(route = SearchForm.route) {
-                        SearchFormScreen(navController)
-                    }
                     composable(
-                        route = SearchResults.routeArgs, arguments = SearchResults.arguments
+                        route = Search.routeArgs, arguments = Search.arguments
                     ) { navBackStackEntry ->
                         val criteria =
-                            navBackStackEntry.arguments?.getString(SearchResults.criteria)
+                            navBackStackEntry.arguments?.getString(Search.criteria)
 
-                        SearchResultsScreen(navController, criteria)
+                        SearchScreen(navController, criteria)
                     }
                     composable(route = Scan.route) {
                         ScanScreen(navController)

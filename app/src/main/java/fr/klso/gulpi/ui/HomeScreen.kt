@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import fr.klso.gulpi.navigation.Scan
-import fr.klso.gulpi.navigation.SearchForm
+import fr.klso.gulpi.navigation.Search
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -30,7 +30,7 @@ fun HomeScreen(navController: NavController) {
             Text("Scan")
         }
         Button(onClick = {
-            navController.navigate(SearchForm.route) {
+            navController.navigate(Search.route) {
                 launchSingleTop = true
             }
         }) {
