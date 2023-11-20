@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PaginableSearchComputers(
-    override val totalcount: Int,
-    override val count: Int,
-    override val sort: List<String>,
-    override val order: List<String>,
+    override val totalcount: Int = 0,
+    override val count: Int = 0,
+    override val sort: List<String> = listOf(),
+    override val order: List<String> = listOf(),
     @SerialName("content-range")
-    override val contentRange: String,
+    override val contentRange: String = "",
     val data: List<SearchComputer>,
 ) : PaginableSearchItems()

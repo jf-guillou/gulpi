@@ -58,6 +58,7 @@ import fr.klso.gulpi.ui.credentials.CredentialsScreen
 import fr.klso.gulpi.ui.onboarding.OnboardingScreen
 import fr.klso.gulpi.ui.search.SearchScreen
 import fr.klso.gulpi.ui.theme.GulpiTheme
+import fr.klso.gulpi.utilities.exceptions.ApiSessionTokenInvalidException
 import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
@@ -100,6 +101,15 @@ fun MainActivityScreen(viewModel: MainActivityViewModel = viewModel()) {
     if (state.userToken.isEmpty() || state.appToken.isEmpty()) {
         CredentialsScreen()
         return
+    }
+
+    LaunchedEffect(Unit) {
+        try {
+            Glpi.checkSession()
+        } catch (e: ApiSessionTokenInvalidException) {
+            Log.d(TAG, "Session token is invalid")
+            viewModel.saveSessionToken("")
+        }
     }
 
     if (state.sessionToken.isEmpty()) {

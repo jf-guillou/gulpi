@@ -3,6 +3,7 @@ package fr.klso.gulpi.services
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import fr.klso.gulpi.models.ApiSession
 import fr.klso.gulpi.models.Computer
+import fr.klso.gulpi.models.search.PaginableSearchComputers
 import fr.klso.gulpi.models.search.PaginableSearchItems
 import fr.klso.gulpi.models.search.SearchComputer
 import fr.klso.gulpi.models.search.SearchCriteria
@@ -91,6 +92,21 @@ object Glpi {
         throw Exception()
     }
 
+    suspend fun checkSession(): Boolean {
+        assertUsable()
+
+        try {
+            api!!.getActiveProfile(
+                appToken,
+                sessionToken,
+            )
+        } catch (e: HttpException) {
+            throw ApiExceptionParser.run(e)
+        }
+
+        return true
+    }
+
     suspend fun getComputer(id: String): Computer? {
         assertUsable()
 
@@ -125,9 +141,9 @@ object Glpi {
                 query
             )
         } catch (e: HttpException) {
-//            if (e.code() == 404) {
-//                return PaginableSearchResults()
-//            }
+            if (e.code() == 404) {
+                return PaginableSearchComputers(data = listOf())
+            }
             throw ApiExceptionParser.run(e)
         }
     }

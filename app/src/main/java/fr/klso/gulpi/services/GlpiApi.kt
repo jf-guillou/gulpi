@@ -45,7 +45,13 @@ interface GlpiApi {
     ): PaginableSearchItems
 
     @GET("apirest.php/getGlpiConfig")
-    suspend fun config(
+    suspend fun getConfig(
+        @Header("App-Token") appToken: String,
+        @Header("Session-Token") sessionToken: String,
+    ): Unit
+
+    @GET("apirest.php/getActiveProfile")
+    suspend fun getActiveProfile(
         @Header("App-Token") appToken: String,
         @Header("Session-Token") sessionToken: String,
     ): Unit
