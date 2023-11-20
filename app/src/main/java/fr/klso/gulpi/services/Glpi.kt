@@ -6,10 +6,10 @@ import fr.klso.gulpi.models.Computer
 import fr.klso.gulpi.models.search.PaginableSearchItems
 import fr.klso.gulpi.models.search.SearchComputer
 import fr.klso.gulpi.models.search.SearchCriteria
+import fr.klso.gulpi.utilities.ApiExceptionParser
+import fr.klso.gulpi.utilities.exceptions.ApiAppTokenMissingException
 import fr.klso.gulpi.utilities.exceptions.ApiAuthFailedException
-import fr.klso.gulpi.utilities.exceptions.ApiMissingAppTokenException
 import fr.klso.gulpi.utilities.exceptions.ApiNotInitializedException
-import fr.klso.gulpi.utilities.exceptions.ApiUnexpectedResponseException
 import fr.klso.gulpi.utilities.toQueryMap
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -38,7 +38,7 @@ object Glpi {
             throw ApiNotInitializedException()
         }
         if (appToken.isEmpty()) {
-            throw ApiMissingAppTokenException()
+            throw ApiAppTokenMissingException(null)
         }
         if (sessionToken.isEmpty()) {
             throw ApiAuthFailedException()
@@ -55,7 +55,7 @@ object Glpi {
         } catch (e: HttpException) {
             if (e.code() == 400) {
                 val body = e.response()?.errorBody()
-                if (body != null && body.string().contains(ApiMissingAppTokenException.apiMsg)) {
+                if (body != null && body.string().contains(ApiAppTokenMissingException.apiMsg)) {
                     return true
                 }
             }
@@ -71,7 +71,7 @@ object Glpi {
             throw ApiNotInitializedException()
         }
         if (appToken.isEmpty()) {
-            throw ApiMissingAppTokenException()
+            throw ApiAppTokenMissingException(null)
         }
 
         try {
@@ -88,7 +88,7 @@ object Glpi {
             }
         }
 
-        throw ApiUnexpectedResponseException()
+        throw Exception()
     }
 
     suspend fun getComputer(id: String): Computer? {
@@ -104,7 +104,7 @@ object Glpi {
             if (e.code() == 404) {
                 return null
             }
-            throw e
+            throw ApiExceptionParser.run(e)
         }
     }
 
@@ -128,7 +128,7 @@ object Glpi {
 //            if (e.code() == 404) {
 //                return PaginableSearchResults()
 //            }
-            throw e
+            throw ApiExceptionParser.run(e)
         }
     }
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927549462976",
+    "project_id": "gulpi-94a39",
+    "storage_bucket": "gulpi-94a39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927549462976:android:33355262c7505b62dad025",
+        "android_client_info": {
+          "package_name": "fr.klso.gulpi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-pzljjXlfxvaGUMgX09jQioTfZ0P5x0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

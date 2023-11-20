@@ -1,7 +1,9 @@
 package fr.klso.gulpi.utilities.exceptions
 
-class ApiWrongAppTokenException : Throwable() {
+import retrofit2.HttpException
+
+class ApiWrongAppTokenException(e: HttpException) : ApiHttpException(e) {
     companion object {
-        val apiMsg: String = "ERROR_WRONG_APP_TOKEN_PARAMETER"
+        const val apiMsg: String = "ERROR_WRONG_APP_TOKEN_PARAMETER"
     }
 }
