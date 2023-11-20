@@ -24,6 +24,8 @@ class AuthStore @Inject constructor(@ApplicationContext private val context: Con
         private val SESSION_TOKEN_KEY = stringPreferencesKey("session_token")
     }
 
+    val dataStore: Flow<Preferences> = context.dataStore.data
+
     val getUrl: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[URL_KEY] ?: ""
     }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "OnboardingViewModel"
+private const val TAG = "CredentialsViewModel"
 
 @HiltViewModel
 class CredentialsViewModel @Inject constructor(

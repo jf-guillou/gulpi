@@ -21,13 +21,21 @@ object Home : Destination {
     override val name = "Home"
 }
 
-object Search : Destination {
+object SearchFromScan : Destination {
     override val route = "search"
     const val criteria = "criteria"
     val routeArgs = "${route}/{${criteria}}"
     val arguments = listOf(
-        navArgument(criteria) { type = NavType.StringType }
+        navArgument(criteria) {
+            type = NavType.StringType
+        }
     )
+    override val icon = Icons.Default.Close
+    override val name = "Search"
+}
+
+object Search : Destination {
+    override val route = "search"
     override val icon = Icons.Default.Close
     override val name = "Search"
 }

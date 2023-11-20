@@ -26,7 +26,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import fr.klso.gulpi.navigation.Search
+import fr.klso.gulpi.navigation.SearchFromScan
 
 @Composable
 @androidx.camera.core.ExperimentalGetImage
@@ -65,7 +65,7 @@ fun ScanScreen(navController: NavController) {
                     val barcodeStr = barcode.rawValue
                     if (isBarcodeValid(barcodeStr)) {
                         println(barcodeStr)
-                        navController.navigate("${Search.route}/$barcodeStr") {
+                        navController.navigate("${SearchFromScan.route}/$barcodeStr") {
                             launchSingleTop = true
                         }
                     }

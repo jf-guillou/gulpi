@@ -35,20 +35,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import fr.klso.gulpi.data.AuthStore
 import fr.klso.gulpi.navigation.Credentials
 import fr.klso.gulpi.navigation.Home
 import fr.klso.gulpi.navigation.Onboarding
 import fr.klso.gulpi.navigation.Scan
 import fr.klso.gulpi.navigation.Search
+import fr.klso.gulpi.navigation.SearchFromScan
 import fr.klso.gulpi.navigation.Settings
 import fr.klso.gulpi.services.Glpi
 import fr.klso.gulpi.ui.HomeScreen
@@ -66,7 +66,7 @@ private const val TAG = "MainActivity"
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { App() }
+        setContent { MainActivityScreen() }
         val requestPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
 
@@ -78,49 +78,43 @@ class MainActivity : ComponentActivity() {
 @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App() {
-    val store = AuthStore(LocalContext.current)
-    val url = store.getUrl.collectAsState("").value
-    val userToken = store.getUserToken.collectAsState("").value
-    val appToken = store.getAppToken.collectAsState("").value
-    val sessionToken = store.getSessionToken.collectAsState("").value
-    // Hideous way to wait for datastore readiness
-    if (!store.ready.collectAsState(initial = false).value) {
-        LaunchedEffect(Unit) {
-            store.setReady()
-        }
+fun MainActivityScreen(viewModel: MainActivityViewModel = viewModel()) {
+    val state by viewModel.state.collectAsState()
+
+    if (!state.isReady) {
+        // LoadingScreen here ?
         return
     }
 
-    Log.d(TAG, "Init GlpiApi : $url")
-    if (url.isEmpty()) {
+    Log.d(TAG, "Init GlpiApi, url : ${state.url}")
+    if (state.url.isEmpty()) {
         OnboardingScreen()
         return
     }
-    Glpi.init(url)
+    Glpi.init(state.url)
 
-    Log.d(TAG, "User token : $userToken")
-    Log.d(TAG, "App token : $appToken")
-    Log.d(TAG, "Session token : $sessionToken")
+    Log.d(TAG, "User token : ${state.userToken}")
+    Log.d(TAG, "App token : ${state.appToken}")
+    Log.d(TAG, "Session token : ${state.sessionToken}")
 
-    if (userToken.isEmpty() || appToken.isEmpty()) {
+    if (state.userToken.isEmpty() || state.appToken.isEmpty()) {
         CredentialsScreen()
         return
     }
 
-    if (sessionToken.isEmpty()) {
+    if (state.sessionToken.isEmpty()) {
         Log.d(TAG, "Missing session token")
         LaunchedEffect(Unit) {
             Log.d(TAG, "initSession")
-            val token = Glpi.initSession(userToken).sessionToken
-            store.saveSessionToken(token)
+            val token = Glpi.initSession(state.userToken).sessionToken
+            viewModel.saveSessionToken(token)
             Glpi.sessionToken = token
             Log.d(TAG, token)
         }
     }
 
-    Glpi.appToken = appToken
-    Glpi.sessionToken = sessionToken
+    Glpi.appToken = state.appToken
+    Glpi.sessionToken = state.sessionToken
 
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -219,13 +213,16 @@ fun App() {
                     composable(route = Home.route) {
                         HomeScreen(navController)
                     }
+                    composable(route = Search.route) {
+                        SearchScreen(navController, criteria = null)
+                    }
                     composable(
-                        route = Search.routeArgs, arguments = Search.arguments
+                        route = SearchFromScan.routeArgs, arguments = SearchFromScan.arguments
                     ) { navBackStackEntry ->
                         val criteria =
-                            navBackStackEntry.arguments?.getString(Search.criteria)
+                            navBackStackEntry.arguments?.getString(SearchFromScan.criteria)
 
-                        SearchScreen(navController, criteria)
+                        SearchScreen(navController, criteria = criteria)
                     }
                     composable(route = Scan.route) {
                         ScanScreen(navController)
