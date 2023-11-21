@@ -11,8 +11,10 @@ data class SearchComputer(
     val id: Int,
     @SerialName("5")
     val serial: String,
+    @SerialName("6")
+    val assetTag: String,
 ) : SearchItem() {
     companion object {
-        val columns = intArrayOf(2, 5)
+        val columns = intArrayOf(2, 5, 6)
     }
 }

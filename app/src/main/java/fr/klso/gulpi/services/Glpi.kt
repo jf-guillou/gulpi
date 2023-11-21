@@ -1,10 +1,10 @@
 package fr.klso.gulpi.services
 
+import android.util.Log
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import fr.klso.gulpi.models.ApiSession
 import fr.klso.gulpi.models.Computer
 import fr.klso.gulpi.models.search.PaginableSearchComputers
-import fr.klso.gulpi.models.search.PaginableSearchItems
 import fr.klso.gulpi.models.search.SearchComputer
 import fr.klso.gulpi.models.search.SearchCriteria
 import fr.klso.gulpi.utilities.ApiExceptionParser
@@ -126,13 +126,15 @@ object Glpi {
 
     suspend fun searchComputers(
         criteria: List<SearchCriteria>
-    ): PaginableSearchItems {
+    ): PaginableSearchComputers {
         assertUsable()
 
         val query = criteria.toQueryMap()
         for ((k, v) in SearchComputer.columns.withIndex()) {
             query["forcedisplay[$k]"] = v.toString()
         }
+
+        Log.d(TAG, query.toString())
 
         try {
             return api!!.searchComputers(

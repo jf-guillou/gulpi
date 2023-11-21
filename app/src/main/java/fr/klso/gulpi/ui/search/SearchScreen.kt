@@ -1,5 +1,6 @@
 package fr.klso.gulpi.ui.search
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,18 +29,23 @@ fun SearchScreen(
         viewModel.searchFromScan(criteria)
     }
 
-    OutlinedTextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp),
-        enabled = !state.isLoading,
-        value = viewModel.textCriteria,
-        onValueChange = { viewModel.textCriteria = it },
-        label = { Text("Search") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {
-            viewModel.search()
-        }),
-    )
+    Column {
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp),
+            enabled = !state.isLoading,
+            value = viewModel.textCriteria,
+            onValueChange = { viewModel.textCriteria = it },
+            label = { Text("Search") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = {
+                viewModel.search()
+            }),
+        )
+
+        if (state.items.count > 0)
+            Text(state.items.data[0].name)
+    }
 }

@@ -11,5 +11,5 @@ data class PaginableSearchComputers(
     override val order: List<String> = listOf(),
     @SerialName("content-range")
     override val contentRange: String = "",
-    val data: List<SearchComputer>,
+    val data: List<SearchComputer> = listOf(),
 ) : PaginableSearchItems()

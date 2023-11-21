@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.klso.gulpi.models.search.SearchCriteria
+import fr.klso.gulpi.models.search.SearchLink
 import fr.klso.gulpi.services.Glpi
-import fr.klso.gulpi.utilities.exceptions.ApiSessionTokenInvalidException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +19,7 @@ import javax.inject.Inject
 private const val TAG = "SearchViewModel"
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
-//    private val store: AuthStore,
-) : ViewModel() {
+class SearchViewModel @Inject constructor() : ViewModel() {
     private val _state = MutableStateFlow(SearchUiState())
     val state: StateFlow<SearchUiState> = _state.asStateFlow()
 
@@ -44,12 +42,31 @@ class SearchViewModel @Inject constructor(
 
     fun search() {
         Log.d(TAG, "Search for $textCriteria")
+        val c = listOf(
+            SearchCriteria(
+                field = 2,
+                searchtype = "contains",
+                value = textCriteria,
+                link = SearchLink.OR,
+            ),
+            SearchCriteria(
+                field = 5,
+                searchtype = "contains",
+                value = textCriteria,
+                link = SearchLink.OR,
+            ),
+            SearchCriteria(
+                field = 6,
+                searchtype = "contains",
+                value = textCriteria,
+                link = SearchLink.OR,
+            )
+        )
+
         viewModelScope.launch {
-            try {
-                Glpi.searchComputers(listOf(SearchCriteria(value = textCriteria)))
-            } catch (e: ApiSessionTokenInvalidException) {
-//                store.saveSessionToken("")
-            }
+            val computers = Glpi.searchComputers(c)
+            Log.d(TAG, "Found $computers")
+            _state.value = _state.value.copy(items = computers)
         }
     }
 }
